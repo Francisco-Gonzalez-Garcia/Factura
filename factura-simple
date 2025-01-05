@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <title>Factura Simple</title>
+    <style>
+        body { font-family: sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        #total { margin-top: 20px; font-weight: bold; }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #factura, #factura * {
+                visibility: visible;
+            }
+            #factura {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+        }
+        /* Estilos generales de la factura */
+#factura {
+    width: 80%; /* Ancho de la factura */
+    margin: 20px auto; /* Centrar la factura en la p�gina */
+    border: 1px solid #ccc; /* Borde ligero */
+    padding: 20px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    font-family: sans-serif; /* Fuente */
+}
+
+#factura h1 {
+    text-align: center; /* Centrar el t�tulo */
+    margin-bottom: 20px;
+    color: #333; /* Color del t�tulo */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th {
+    background-color: #f0f0f0; /* Fondo gris claro para los encabezados */
+    font-weight: bold;
+}
+
+#total {
+    margin-top: 20px;
+    font-weight: bold;
+    text-align: right; /* Alinear el total a la derecha */
+    font-size: 1.2em; /* Aumentar ligeramente el tama�o del total */
+}
+
+/* Estilos para los botones azul oscuro */
+button {
+    background-color: #0056b3; /* Azul oscuro */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transici�n suave para el hover */
+    margin: 5px; /* Espacio entre botones */
+}
+
+button:hover {
+    background-color: #004085; /* Azul oscuro m�s oscuro al pasar el rat�n */
+}
+
+button:active { /* Estilo al hacer click */
+    background-color: #002b52; /* Azul a�n m�s oscuro al hacer click */
+}
+
+/* Estilos para la secci�n de a�adir producto */
+#add-product {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#add-product label {
+    display: block; /* Etiquetas en bloque para que ocupen todo el ancho */
+    margin-bottom: 5px;
+}
+
+#add-product input[type="text"],
+#add-product input[type="number"] {
+    width: calc(100% - 12px); /* Ancho completo menos el padding y borde */
+    padding: 6px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box; /* Incluir padding y borde en el ancho total */
+}
+/* Estilos de impresion */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #factura, #factura * {
+        visibility: visible;
+    }
+    #factura {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+}
+    </style>
+</head>
+<body>
+
+<div id="factura">
+    
+    <h1>Factura EE3.ES</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unidad</th>
+                <th>IVA (21%)</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="productos">
+            </tbody>
+    </table>
+    <div id="total">Total: 0.00</div>
+    <button onclick="window.print()">Imprimir</button>
+</div>
+    <br>
+    <h2>Agregar Producto</h2>
+    <input type="text" id="producto" placeholder="Producto">
+    <input type="number" id="cantidad" placeholder="Cantidad" value="1">
+    <input type="number" id="precio" placeholder="Precio Unidad">
+    <button onclick="agregarProducto()">Aagregar</button>
+
+<script>
+    let total = 0;
+    const productos = document.getElementById('productos');
+    const totalElement = document.getElementById('total');
+
+    function agregarProducto() {
+        const producto = document.getElementById('producto').value;
+        const cantidad = parseFloat(document.getElementById('cantidad').value);
+        const precio = parseFloat(document.getElementById('precio').value);
+
+        if (producto && !isNaN(cantidad) && !isNaN(precio)) {
+            const iva = precio * 0.21;
+            const subtotal = cantidad * (precio + iva);
+            total += subtotal;
+
+            const row = productos.insertRow();
+            const descCell = row.insertCell();
+            const cantCell = row.insertCell();
+            const precioCell = row.insertCell();
+            const ivaCell = row.insertCell();
+            const subtotalCell = row.insertCell();
+
+            descCell.textContent = producto;
+            cantCell.textContent = cantidad;
+            precioCell.textContent = precio.toFixed(2);
+            ivaCell.textContent = iva.toFixed(2);
+            subtotalCell.textContent = subtotal.toFixed(2);
+            totalElement.textContent = `Total: ${total.toFixed(2)}`;
+
+            //Limpiar campos
+            document.getElementById('producto').value = '';
+            document.getElementById('cantidad').value = '1';
+            document.getElementById('precio').value = '';
+        } else {
+            alert("Por favor, complete todos los campos con valores v�lidos.");
+        }
+    }
+</script>
+<button onclick="generarPDF()">Generar PDF</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        function generarPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const tabla = document.getElementById('productos');
+            const filas = tabla.rows;
+
+            let y = 10; // Posici�n vertical inicial
+
+            // Agregar el t�tulo de la factura
+            doc.text("Factura", 10, y);
+            y += 10;
+
+            // Agregar encabezados de la tabla
+            const encabezados = ["Producto", "Cantidad", "Precio Unidad", "IVA (21%)", "Subtotal"];
+            let x = 10;
+            encabezados.forEach(encabezado => {
+                doc.text(encabezado, x, y);
+                x += 40; // Ajustar el espaciado seg�n sea necesario
+            });
+            y += 5;
+            doc.line(10, y, 200, y); // Dibujar una l�nea bajo los encabezados
+            y+=5;
+
+            // Iterar sobre las filas de la tabla
+            for (let i = 0; i < filas.length; i++) {
+                const celdas = filas[i].cells;
+                x = 10;
+                for (let j = 0; j < celdas.length; j++) {
+                    doc.text(celdas[j].textContent, x, y);
+                    x += 40;
+                }
+                y += 10; // Espaciado entre filas
+            }
+            //Agregar el total
+            const totalElement = document.getElementById("total");
+            doc.text(totalElement.textContent, 10, y+10)
+
+            doc.save('factura.pdf');
+        }
+    </script>
+
+</body>
+</html>
